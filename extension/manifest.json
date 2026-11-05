@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Tab bridge",
+  "version": "0.2.0",
+  "description": "Lets the local tabs CLI manage tabs and bookmarks.",
+  "minimum_chrome_version": "121",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuJtRCJWTmcX0CzTA/iq5rxx3NMXkYWEMmc4xSozUGrgcRFMLKMdYxGosXu9KkFMJ+cD1sdkxkRQnZw85AaCJybmPYtn1/CCSoTSm8G42GQxLtGshxgz5iNA3vdMoQ87RE208cJ9p51EFspVgbmGR7XrEi1sW0MYnirUzXzdO/wE5KPBfwFC4Rw2YDWU5t1Y5xb95a9HeT2Lzud3DYPXq7M+H6qItRH3YMeER7zUPh2kQoqRXRIQZqAgmtky3SEZelQzRvWgDZoOTDTTj1QPNOd5njk98PZ3j7o+9hLmvsunA2Lo1dWeKUW77as1YpqoFOWsm/7LJJCDmYY+hfLv3IQIDAQAB",
+  "permissions": ["tabs", "tabGroups", "bookmarks", "sessions", "nativeMessaging", "alarms", "storage", "identity", "identity.email"],
+  "action": { "default_title": "Tab bridge" },
+  "background": { "service_worker": "background.js" }
+}
