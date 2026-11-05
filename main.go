@@ -11,6 +11,8 @@ const usage = `tabs manages Chrome tabs through the Tab bridge extension.
 
   tabs status                                 profiles, which Chrome profile each is, their windows
   tabs focus WINDOW                           bring a window to the front
+  tabs show ID                                switch to a tab and bring its window to the front
+  tabs autoplay [on|off] [--profile P]        YouTube autoplay before you touch the page, off by default
   tabs label PROFILE NAME                     name a profile, shown on the extension badge
   tabs list [filters] [output]                tabs, one per line
   tabs groups                                 tab groups per window
@@ -21,6 +23,7 @@ const usage = `tabs manages Chrome tabs through the Tab bridge extension.
   tabs ungroup ID...
   tabs sort WINDOW [--order GROUP,GROUP...]   groups first, then loose tabs, each by site
   tabs pin ID... / tabs unpin ID...
+  tabs mute ID... / tabs unmute ID...         flags in list: * active, P pinned, A sound, M muted, Z asleep
   tabs discard ID... [--force]                sleep tabs, they stay open
   tabs park ID... [--name NAME] [--force]     bookmark, then close
   tabs closed [--profile P] [-n N]            recently closed
@@ -39,6 +42,8 @@ Pinned tabs, tabs playing audio and Meet calls are refused unless --force.
 var commands = map[string]func([]string) int{
 	"status":     cmdStatus,
 	"focus":      cmdFocus,
+	"show":       cmdShow,
+	"autoplay":   cmdAutoplay,
 	"reload":     cmdReload,
 	"bookmarks":  cmdBookmarks,
 	"label":      cmdLabel,
@@ -52,6 +57,8 @@ var commands = map[string]func([]string) int{
 	"sort":       cmdSort,
 	"pin":        func(a []string) int { return cmdPin(a, true) },
 	"unpin":      func(a []string) int { return cmdPin(a, false) },
+	"mute":       func(a []string) int { return cmdMute(a, true) },
+	"unmute":     func(a []string) int { return cmdMute(a, false) },
 	"discard":    cmdDiscard,
 	"park":       cmdPark,
 	"closed":     cmdClosed,

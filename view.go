@@ -159,6 +159,9 @@ func flags(t Tab) string {
 	if t.Audible {
 		b.WriteByte('A')
 	}
+	if t.Muted {
+		b.WriteByte('M')
+	}
 	if t.Discarded {
 		b.WriteByte('Z')
 	}

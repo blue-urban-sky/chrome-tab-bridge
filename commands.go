@@ -167,6 +167,60 @@ func cmdReload(args []string) int {
 	return st.code()
 }
 
+func cmdAutoplay(args []string) int {
+	fs := newFlags("autoplay")
+	only := fs.String("profile", "", "only this profile")
+	pos := parseArgs(fs, args)
+	a := map[string]any{}
+	switch {
+	case len(pos) == 0:
+	case len(pos) == 1 && (pos[0] == "on" || pos[0] == "off"):
+		a["allowed"] = pos[0] == "on"
+	default:
+		return fail("usage: tabs autoplay [on|off] [--profile P]")
+	}
+	var st exitStatus
+	for _, p := range connectAll() {
+		if *only != "" && !p.Is(*only) {
+			continue
+		}
+		var r struct {
+			Allowed bool `json:"allowed"`
+		}
+		if err := p.Call("autoplay", a, &r); err != nil {
+			st.fail("%s: %v", p.Name(), err)
+			continue
+		}
+		state := "blocked until you click or press a key on the page"
+		if r.Allowed {
+			state = "allowed"
+		}
+		fmt.Printf("%s: YouTube autoplay %s\n", p.Name(), state)
+	}
+	return st.code()
+}
+
+func cmdShow(args []string) int {
+	pos := parseArgs(newFlags("show"), args)
+	if len(pos) != 1 {
+		return fail("usage: tabs show ID")
+	}
+	id, err := strconv.Atoi(pos[0])
+	if err != nil {
+		return fail("not a tab ID: %q", pos[0])
+	}
+	p := tabOwner(connectAll(), id)
+	if p == nil {
+		return fail("no tab %d", id)
+	}
+	var t Tab
+	if err := p.Call("show", map[string]any{"tabId": id}, &t); err != nil {
+		return fail("%s: %v", p.Name(), err)
+	}
+	fmt.Printf("%s: showing tab %d in window %d\n", p.Name(), t.ID, t.WindowID)
+	return 0
+}
+
 func cmdFocus(args []string) int {
 	pos := parseArgs(newFlags("focus"), args)
 	if len(pos) != 1 {
@@ -614,6 +668,23 @@ func cmdPin(args []string, pinned bool) int {
 			return
 		}
 		fmt.Printf("%s: %sned %d\n", p.Name(), name, len(ids))
+	})
+	return st.code()
+}
+
+func cmdMute(args []string, muted bool) int {
+	name := map[bool]string{true: "mute", false: "unmute"}[muted]
+	ids, err := parseIDs(parseArgs(newFlags(name), args))
+	if err != nil {
+		return fail("%v", err)
+	}
+	var st exitStatus
+	eachOwner(connectAll(), ids, &st, func(p *profile, ids []int) {
+		if err := p.Call("mute", map[string]any{"ids": ids, "muted": muted}, nil); err != nil {
+			st.fail("%s: %v", p.Name(), err)
+			return
+		}
+		fmt.Printf("%s: %sd %d\n", p.Name(), name, len(ids))
 	})
 	return st.code()
 }

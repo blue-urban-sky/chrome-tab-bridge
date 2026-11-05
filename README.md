@@ -6,7 +6,7 @@ Chrome's AppleScript support can list and close tabs but can't group them, sort 
 
 | Part | What it does |
 |---|---|
-| `extension/` | Chrome extension. Tab and bookmark metadata plus the profile's signed-in account. No access to page contents. Its toolbar badge shows the profile name, blue when the bridge is connected and red when not. |
+| `extension/` | Chrome extension. Tab and bookmark metadata plus the profile's signed-in account. No access to page contents except YouTube, where a script pauses autoplay. Its toolbar badge shows the profile name, blue when the bridge is connected and red when not. |
 | `tabs` (Go, built from this folder) | Chrome launches it as the native host, one process per profile, each listening on a socket in `~/Library/Application Support/chrome-tab-bridge/run/`. Run by hand it is the CLI. |
 
 ## Install
@@ -43,6 +43,7 @@ Bookmark IDs repeat across profiles, so they print as `profile:id`.
 ## Rules it holds
 
 - Pinned tabs, tabs playing audio and Meet calls are refused by close, park and discard unless `--force`.
+- YouTube video and audio that start before you've clicked or pressed a key on the page are paused. A sleeping tab wakes by reloading, and YouTube would otherwise resume playing what was paused. Opening a YouTube link fresh also needs a click on play. `tabs autoplay on` turns this off for a profile.
 - `bookmarks rm` refuses a folder that still holds bookmarks unless `--force`. The CLI has no undo for removals.
 - Park writes the bookmarks to `Other bookmarks/Parked tabs/<date> <name>` and only closes the tabs once every bookmark exists.
 - Titles and URLs print as `[hidden]` unless `--reveal` for hosts listed in `~/.config/tabs/hidden-hosts`, so pages carrying other people's details stay out of an agent's context. One regexp per line matched against the host, `!host` to always show one host, `#` for comments. With no file, Gmail is hidden. A file that fails to parse hides everything.

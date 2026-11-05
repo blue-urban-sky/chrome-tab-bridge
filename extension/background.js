@@ -73,6 +73,7 @@ function tabInfo(t) {
     pinned: t.pinned,
     active: t.active,
     audible: !!t.audible,
+    muted: !!t.mutedInfo?.muted,
     discarded: t.discarded,
     lastAccessed: t.lastAccessed ?? null,
     openerTabId: t.openerTabId ?? null,
@@ -139,6 +140,18 @@ const COMMANDS = {
   async reload() {
     setTimeout(() => chrome.runtime.reload(), 200);
     return { version: chrome.runtime.getManifest().version };
+  },
+
+  async autoplay({ allowed }) {
+    if (allowed != null) await chrome.storage.local.set({ blockAutoplay: !allowed });
+    const { blockAutoplay } = await chrome.storage.local.get("blockAutoplay");
+    return { allowed: blockAutoplay === false };
+  },
+
+  async show({ tabId }) {
+    const t = await chrome.tabs.update(tabId, { active: true });
+    await chrome.windows.update(t.windowId, { focused: true });
+    return tabInfo(t);
   },
 
   async focus({ windowId }) {
@@ -299,6 +312,11 @@ const COMMANDS = {
   async pin({ ids, pinned }) {
     for (const id of ids) await chrome.tabs.update(id, { pinned });
     return { ids, pinned };
+  },
+
+  async mute({ ids, muted }) {
+    for (const id of ids) await chrome.tabs.update(id, { muted });
+    return { ids, muted };
   },
 
   async discard({ ids, force }) {

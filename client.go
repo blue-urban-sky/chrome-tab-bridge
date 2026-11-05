@@ -22,6 +22,7 @@ type Tab struct {
 	Pinned       bool    `json:"pinned"`
 	Active       bool    `json:"active"`
 	Audible      bool    `json:"audible"`
+	Muted        bool    `json:"muted"`
 	Discarded    bool    `json:"discarded"`
 	LastAccessed float64 `json:"lastAccessed"`
 	URL          string  `json:"url"`
